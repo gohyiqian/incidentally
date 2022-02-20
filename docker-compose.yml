@@ -1,0 +1,58 @@
+version: "3"
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    container_name: react-client
+    networks:
+      - mern-network
+    volumes:
+      - ./client/src:/usr/app/src
+      - ./client/public:/usr/app/public
+    depends_on: #ensure that the containers start in the correct order(i.e mongoDB then express)
+      - server
+    # environment:
+    # - REACT_APP_SERVER=http://localhost:5000
+    # - CHOKIDAR_USEPOLLING=true #allow for hot reloading for React
+    command: npm start
+    stdin_open: true #keep the client container live and open to requests after starting up
+    tty: true
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    container_name: express-server
+    networks: #provides isolation from other containers that may be running on the same host
+      - mern-network
+    volumes: #enables persistence of DB data between container restarts and provides bind mounts to allow for hot reloading
+      - ./server/src:/usr/app/src
+    depends_on: #ensure that the containers start in the correct order (i.e. Express should start after MongoDB)
+      - db
+    # environment:
+    # - MONGO_URL=mongodb://db:27017
+    # - CLIENT=http://localhost:3000
+    command: /usr/app/node_modules/.bin/nodemon server.js
+
+  db:
+    image: mongo:3.6.19-xenial
+    ports:
+      - 27017:27017
+    container_name: mongo-db
+    networks:
+      - mern-network
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
