@@ -5,32 +5,41 @@ const ticketSchema = new Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Please provide ticket title"],
     },
     description: {
       type: String,
-      required: true,
-      unique: true,
+      required: [true, "Please provide description"],
     },
     project: {
       type: String,
-      required: true,
+      ref: "Project",
+      required: [true, "Please provide project"],
     },
-    type: {
+    ticketType: {
       type: String,
-      required: true,
+      enum: ["security", "accident", "administrative", "logistic"],
+      default: "administrative",
     },
     assignee: {
       type: String,
-      required: true,
     },
-    prority: {
+    priority: {
       type: String,
       required: true,
+      enum: ["high", "medium", "low"],
+      default: "low",
     },
     status: {
       type: String,
       required: true,
+      enum: ["open", "close", "archived"],
+      default: "open",
+    },
+    createdBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: [true, "Please provide user"],
     },
   },
   { timestamps: true }

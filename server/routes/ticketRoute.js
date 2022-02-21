@@ -9,7 +9,12 @@ import {
   deleteTicket,
 } from "../controllers/ticketController.js";
 
-router.route("/").post(createTicket).get(getAllTickets);
-router.route("/:id").get(getTicket).delete(deleteTicket).patch(updateTicket);
+router.route("/:userId").post(createTicket);
+router.route("/all").get(getAllTickets);
+router
+  .route("/:ticketId")
+  .get(getTicket)
+  .delete(deleteTicket)
+  .patch(updateTicket);
 
 export default router;

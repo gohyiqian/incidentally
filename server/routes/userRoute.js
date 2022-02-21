@@ -1,5 +1,6 @@
 import express from "express";
 const router = express.Router();
+import authenticateUser from "../middleware/auth.js";
 
 import {
   userRegister,
@@ -13,6 +14,10 @@ import {
 router.route("/register").post(userRegister);
 router.route("/login").post(userLogin);
 router.route("/all").get(getAllUsers);
-router.route("/:id").get(getUser).delete(deleteUser).patch(updateUser);
+router
+  .route("/:userId")
+  .get(getUser)
+  .delete(deleteUser)
+  .patch(authenticateUser, updateUser);
 
 export default router;

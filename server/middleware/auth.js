@@ -1,12 +1,25 @@
-import dotenv from "dotenv";
-dotenv.config();
 import jwt from "jsonwebtoken";
+import { UnAuthenticatedError } from "../errors/index.js";
 
-const requireAuth = (req, res, next) => {
-  // get token from cookies
-  // const token = req.cookies.jwt;
-  // check if token exists && isValid
-  // jwt.verify(token, jwtsecret, decodedToken)
+UnAuthenticatedError;
+const auth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    throw new UnAuthenticatedError("Authentication Invalid");
+  }
+  const token = authHeader.split(" ")[1];
+  const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(payload);
+    req.user = { userId: payload.userId };
+
+    next();
+  } catch (error) {
+    throw new UnAuthenticatedError("Authentication Invalid");
+  }
 };
 
-export default requireAuth;
+export default auth;

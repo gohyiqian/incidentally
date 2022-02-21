@@ -1,10 +1,7 @@
-// import express from "express";
-// import { Jwt } from "jsonwebtoken";
-// import bcrypt from "bcrypt";
 import User from "../models/user.js";
 // import { requireAuth } from "../middleware/auth";
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError } from "../errors/index.js";
+import { BadRequestError, UnAuthenticatedError } from "../errors/index.js";
 
 // create user
 const userRegister = async (req, res, next) => {
@@ -16,7 +13,10 @@ const userRegister = async (req, res, next) => {
   if (userAlreadyExists) {
     throw new BadRequestError("Email already in use");
   }
-  const user = await User.create(req.body);
+  // const usertype = "admin";
+  const usertype = "normal";
+  const user = await User.create({ username, email, password, usertype });
+  console.log(user._id);
   const token = user.createJWT();
   // exclude password from the json response
   res.status(StatusCodes.OK).json({
@@ -30,11 +30,32 @@ const userRegister = async (req, res, next) => {
 
 // user login
 const userLogin = async (req, res) => {
-  res.send("login user");
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new BadRequestError("Please provide all values");
+  }
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    throw new UnAuthenticatedError("Invalid Credentials");
+  }
+
+  const isPasswordCorrect = await user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new UnAuthenticatedError("Invalid Credentials");
+  }
+  const token = user.createJWT();
+  user.password = undefined;
+  res.status(StatusCodes.OK).json({ user, token });
 };
 
 // admin - get all users
 const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(StatusCodes.OK).json({ users });
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST);
+  }
   res.send("all users");
 };
 
@@ -45,7 +66,24 @@ const getUser = async (req, res) => {
 
 // admin - update user
 const updateUser = async (req, res) => {
-  res.send("update user");
+  const { email, username } = req.body;
+  if (!email || !username) {
+    throw new BadRequestError("Please provide all values");
+  }
+  const updatedField = {
+    username: username,
+    email: email,
+  };
+  const user = await User.findOneAndUpdate(
+    { _id: req.params.userId },
+    updatedField
+  );
+  // const user = await User.findOne({ _id: "62133436309145a5f361aaf8" });
+
+  await user.save();
+  const token = user.createJWT();
+  console.log(token);
+  res.status(StatusCodes.OK).json({ user, token });
 };
 
 // admin - delete user

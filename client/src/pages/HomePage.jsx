@@ -3,11 +3,13 @@ import Logo from "../components/Logo";
 import Wrapper from "../assets/wrappers/HomePage";
 import { Link } from "react-router-dom";
 
-const Home = () => {
+const HomePage = () => {
   return (
     <Wrapper>
       <nav>
-        <Logo />
+        <div style={{ width: "250px", marginTop: "150px" }}>
+          <Logo />{" "}
+        </div>
       </nav>
       <div className="container page">
         <div className="info">
@@ -32,4 +34,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;
