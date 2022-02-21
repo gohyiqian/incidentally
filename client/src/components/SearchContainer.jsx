@@ -1,11 +1,10 @@
-import { FormRow, FormRowSelect } from ".";
+import { FormRowSelect } from ".";
 import { useAppContext } from "../context/appContext";
 import Wrapper from "../assets/wrappers/SearchContainer";
 
 const SearchContainer = () => {
   const {
     isLoading,
-    search,
     searchStatus,
     searchType,
     sort,
@@ -14,12 +13,16 @@ const SearchContainer = () => {
     clearFilters,
     ticketTypeOptions,
     statusOptions,
+    priorityOptions,
+    searchPriority,
   } = useAppContext();
+
   const handleSearch = (e) => {
     if (isLoading) return;
     handleChange({ name: e.target.name, value: e.target.value });
   };
-  const handleSubmit = (e) => {
+
+  const handleClear = (e) => {
     e.preventDefault();
     clearFilters();
   };
@@ -44,6 +47,14 @@ const SearchContainer = () => {
             handleChange={handleSearch}
             list={["all", ...ticketTypeOptions]}
           />
+          {/* search by priority */}
+          <FormRowSelect
+            labelText="priority"
+            name="searchPriority"
+            value={searchPriority}
+            handleChange={handleSearch}
+            list={["all", ...priorityOptions]}
+          />
           {/* sort */}
           <FormRowSelect
             name="sort"
@@ -54,7 +65,7 @@ const SearchContainer = () => {
           <button
             className="btn btn-block btn-danger"
             disabled={isLoading}
-            onClick={handleSubmit}
+            onClick={handleClear}
           >
             clear filters
           </button>

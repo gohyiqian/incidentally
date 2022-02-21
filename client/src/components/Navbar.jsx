@@ -3,12 +3,13 @@ import { FaAlignLeft, FaUserCircle, FaCaretDown } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
 import Logo from "./Logo";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [showLogout, setShowLogout] = useState(false);
   const { toggleSidebar, logoutUser, user } = useAppContext();
   const navigate = useNavigate();
+
   const logOut = () => {
     logoutUser();
     navigate("/");
@@ -20,9 +21,7 @@ const Navbar = () => {
           <FaAlignLeft />
         </button>
         <div>
-          <Link to="/">
-            <Logo />
-          </Link>
+          <Logo />
 
           <h3 className="logo-text">dashboard</h3>
         </div>

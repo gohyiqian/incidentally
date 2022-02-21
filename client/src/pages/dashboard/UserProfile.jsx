@@ -6,10 +6,9 @@ import Wrapper from "../../assets/wrappers/DashboardFormPage";
 const UserProfile = () => {
   const { user, showAlert, displayAlert, updateUser, isLoading } =
     useAppContext();
-  console.log(user);
+
   const [username, setUsername] = useState(user?.username);
   const [email, setEmail] = useState(user?.email);
-  console.log(user._id);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,7 +16,7 @@ const UserProfile = () => {
       displayAlert();
       return;
     }
-    updateUser({ username, email }, user._id);
+    updateUser({ username, email });
   };
 
   return (

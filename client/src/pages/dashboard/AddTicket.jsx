@@ -35,7 +35,7 @@ const AddTicket = () => {
     //   editTitle();
     //   return;
     // }
-    createTicket(user._id);
+    createTicket();
   };
   const handleJobInput = (e) => {
     const name = e.target.name;

@@ -17,6 +17,7 @@ import {
   GET_TICKETS_BEGIN,
   GET_TICKETS_SUCCESS,
   GET_TICKETS_ERROR,
+  SET_EDIT_TICKET,
   EDIT_TICKET_BEGIN,
   EDIT_TICKET_SUCCESS,
   EDIT_TICKET_ERROR,
@@ -152,8 +153,8 @@ const reducer = (state, action) => {
     return {
       ...state,
       isLoading: false,
-      tickets: action.payload.jobs,
-      totalTickets: action.payload.totalJobs,
+      tickets: action.payload.tickets,
+      totalTickets: action.payload.totalTickets,
       numOfPages: action.payload.numOfPages,
     };
   }
@@ -190,6 +191,23 @@ const reducer = (state, action) => {
       alertText: action.payload.msg,
     };
   }
+  if (action.type === SET_EDIT_TICKET) {
+    const ticket = state.tickets.find(
+      (ticket) => ticket._id === action.payload.id
+    );
+    const { _id, title, description, priority, ticketType, status } = ticket;
+    return {
+      ...state,
+      isEditing: true,
+      editTicketId: _id,
+      title,
+      description,
+      priority,
+      ticketType,
+      status,
+    };
+  }
+
   if (action.type === DELETE_TICKET_BEGIN) {
     return { ...state, isLoading: true };
   }

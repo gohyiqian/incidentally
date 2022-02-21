@@ -20,7 +20,7 @@ import {
   CREATE_TICKET_ERROR,
   GET_TICKETS_BEGIN,
   GET_TICKETS_SUCCESS,
-  GET_TICKETS_ERROR,
+  SET_EDIT_TICKET,
   EDIT_TICKET_BEGIN,
   EDIT_TICKET_SUCCESS,
   EDIT_TICKET_ERROR,
@@ -40,6 +40,7 @@ const initialState = {
   alertType: "",
   user: user ? JSON.parse(user) : null,
   token: token,
+  editTicketId: "",
   title: "",
   description: "",
   project: "",
@@ -57,6 +58,7 @@ const initialState = {
   search: "",
   searchStatus: "all",
   searchType: "all",
+  searchPriority: "all",
   sort: "latest",
   sortOptions: ["latest", "oldest", "a-z", "z-a"],
 };
@@ -142,10 +144,10 @@ const AppProvider = ({ children }) => {
     removeUserFromLocalStorage();
   };
 
-  const updateUser = async (currentUser, userId) => {
+  const updateUser = async (currentUser) => {
     dispatch({ type: UPDATE_USER_BEGIN });
     try {
-      const { data } = await authFetch.patch(`/users/${userId}`, currentUser);
+      const { data } = await authFetch.patch("/users/update", currentUser);
       const { user, token } = data;
       dispatch({
         type: UPDATE_USER_SUCCESS,
@@ -163,11 +165,11 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  const createTicket = async (userId) => {
+  const createTicket = async () => {
     dispatch({ type: CREATE_TICKET_BEGIN });
     try {
       const { title, description, project, ticketType, priority } = state;
-      await authFetch.post(`/tickets/${userId}`, {
+      await authFetch.post("/tickets", {
         title,
         description,
         project,
@@ -187,14 +189,11 @@ const AppProvider = ({ children }) => {
   };
 
   const getTickets = async () => {
-    const { page, search, searchStatus, searchType, sort } = state;
+    const { page, searchStatus, searchType, sort, searchPriority } = state;
 
-    let url = `/tickets?page=${page}&status=${searchStatus}&ticketType=${searchType}&sort=${sort}`;
-
-    if (search) {
-      url = url + `&search=${search}`;
-    }
-
+    let url = `/tickets?page=${page}&status=${searchStatus}&ticketType=${searchType}&sort=${sort}&priority=${searchPriority}`;
+    // let url = `/tickets/all`;
+    console.log(url);
     dispatch({ type: GET_TICKETS_BEGIN });
     try {
       const { data } = await authFetch(url);
@@ -208,12 +207,55 @@ const AppProvider = ({ children }) => {
         },
       });
     } catch (error) {
+      console.log(error.response);
+      // dispatch({
+      //   type: GET_TICKETS_ERROR,
+      //   payload: { msg: error.response.data.msg },
+      // });
+    }
+    clearAlert();
+  };
+
+  const setEditTicket = (id) => {
+    dispatch({ type: SET_EDIT_TICKET, payload: { id } });
+  };
+
+  const editTicket = async () => {
+    dispatch({ type: EDIT_TICKET_BEGIN });
+
+    try {
+      const { title, description, project, ticketType, priority } = state;
+      await authFetch.patch(`/tickets/${state.editTicketId}`, {
+        title,
+        description,
+        project,
+        ticketType,
+        priority,
+      });
+      dispatch({ type: EDIT_TICKET_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status === 401) return;
       dispatch({
-        type: GET_TICKETS_ERROR,
+        type: EDIT_TICKET_ERROR,
         payload: { msg: error.response.data.msg },
       });
     }
     clearAlert();
+  };
+
+  const deleteTicket = async (ticketId) => {
+    dispatch({ type: DELETE_TICKET_BEGIN });
+    try {
+      await authFetch.delete(`/tickets/${ticketId}`);
+      getTickets();
+    } catch (error) {
+      logoutUser();
+    }
+  };
+
+  const toggleSidebar = () => {
+    dispatch({ type: TOGGLE_SIDEBAR });
   };
 
   const handleChange = ({ name, value }) => {
@@ -243,6 +285,10 @@ const AppProvider = ({ children }) => {
         clearFilters,
         changePage,
         getTickets,
+        setEditTicket,
+        editTicket,
+        deleteTicket,
+        toggleSidebar,
       }}
     >
       {children}

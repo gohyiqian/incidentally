@@ -4,7 +4,12 @@ const TicketInfo = ({ icon, text }) => {
   return (
     <Wrapper>
       <span className="icon">{icon}</span>
-      <span className="text">{text}</span>
+      {text === "high" && (
+        <span className="text" style={{ color: "red" }}>
+          {text}
+        </span>
+      )}
+      {text !== "high" && <span className="text">{text}</span>}
     </Wrapper>
   );
 };

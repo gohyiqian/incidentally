@@ -17,12 +17,14 @@ const TicketsContainer = () => {
     searchType,
     sort,
     numOfPages,
+    searchPriority,
   } = useAppContext();
 
   useEffect(() => {
     getTickets();
     // eslint-disable-next-line
-  }, [page, search, searchStatus, searchType, sort]);
+  }, [page, search, searchStatus, searchType, sort, searchPriority]);
+
   if (isLoading) {
     return <Loading center />;
   }
@@ -38,7 +40,7 @@ const TicketsContainer = () => {
   return (
     <Wrapper>
       <h5>
-        {totalTickets} tickets{tickets.length > 1 && "s"} found
+        {totalTickets} ticket{tickets.length > 1 && "s"} found
       </h5>
 
       <div className="jobs">
