@@ -1,5 +1,10 @@
 # Incident Management Application
 
+![Image1](/client/public/images/img01.jpg)
+![Image2](/client/public/images/img02.jpg)
+![Image3](/client/public/images/img03.jpg)
+![Image4](/client/public/images/img04.jpg)
+
 ### Start Docker Container
 
 ```
@@ -26,9 +31,7 @@ For Docker, to change proxy in client's package.json to this:
   "proxy": "http://express-server:5000",
 ```
 
-## ToDoList
-
-### MVP
+### ToDoList
 
 - Design a simple Wireframe
   - Login Page
