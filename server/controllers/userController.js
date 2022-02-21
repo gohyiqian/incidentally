@@ -70,14 +70,20 @@ const updateUser = async (req, res) => {
   if (!email || !username) {
     throw new BadRequestError("Please provide all values");
   }
-  const updatedField = {
-    username: username,
-    email: email,
-  };
-  const user = await User.findOneAndUpdate(
-    { _id: req.params.userId },
-    updatedField
-  );
+  // const updatedField = {
+  //   username: username,
+  //   email: email,
+  // };
+  
+  // we can use req.user.userId because of the auth middleware
+  const user = await User.findOne({ _id: req.user.userId });
+  user.email = email;
+  user.username = username;
+
+  // const user = await User.findOneAndUpdate(
+  //   { _id: req.params.userId },
+  //   updatedField
+  // );
   // const user = await User.findOne({ _id: "62133436309145a5f361aaf8" });
 
   await user.save();

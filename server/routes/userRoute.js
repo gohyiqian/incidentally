@@ -14,10 +14,7 @@ import {
 router.route("/register").post(userRegister);
 router.route("/login").post(userLogin);
 router.route("/all").get(getAllUsers);
-router
-  .route("/:userId")
-  .get(getUser)
-  .delete(deleteUser)
-  .patch(authenticateUser, updateUser);
+router.route("/update").patch(authenticateUser, updateUser);
+router.route("/:userId").get(getUser).delete(deleteUser);
 
 export default router;

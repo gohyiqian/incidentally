@@ -11,35 +11,47 @@ const createTicket = async (req, res) => {
   if (!title || !description || !priority || !project) {
     throw new BadRequestError("Please provide all values");
   }
-  const user = await User.findOne({ _id: req.params.userId });
-  if (user.usertype === "admin") {
-    const inputField = {
-      ...req.body,
-      createdBy: req.params.userId,
-    };
-    const ticket = await Ticket.create(inputField);
-    res.status(StatusCodes.CREATED).json({ ticket });
-  } else {
-    throw new UnAuthenticatedError("Invalid Credentials");
-  }
+  req.body.createdBy = req.user.userId;
+  const ticket = await Ticket.create(req.body);
+  res.status(StatusCodes.CREATED).json({ ticket });
+
+  // const user = await User.findOne({ _id: req.params.userId });
+  // if (user.usertype === "admin") {
+  //   const inputField = {
+  //     ...req.body,
+  //     createdBy: req.params.userId,
+  //   };
+  //   const ticket = await Ticket.create(inputField);
+  //   res.status(StatusCodes.CREATED).json({ ticket });
+  // }
+  // else {
+  //   throw new UnAuthenticatedError("Invalid Credentials");
+  // }
 };
 
 const getAllTickets = async (req, res) => {
-  const { status, ticketType, sort } = req.query;
+  // const tickets = await Ticket.find({ createdBy: req.user.userId });
+  // res
+  //   .status(StatusCodes.OK)
+  //   .json({ tickets, totalTickets: tickets.length, numOfPages: 1 });
+  const { status, ticketType, sort, priority } = req.query;
 
   const queryObject = {
-    createdBy: "621340f8527b527aa34cb771",
+    createdBy: req.user.userId,
   };
 
   if (status && status !== "all") {
     queryObject.status = status;
   }
 
+  if (priority && priority !== "all") {
+    queryObject.priority = priority;
+  }
+
   if (ticketType && ticketType !== "all") {
     queryObject.ticketType = ticketType;
   }
 
-  // NO AWAIT
   let result = Ticket.find(queryObject);
 
   // chain sort conditions
@@ -56,31 +68,60 @@ const getAllTickets = async (req, res) => {
     result = result.sort("-position");
   }
 
-  // setup pagination
+  // // setup pagination
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const limit = Number(req.query.limit) || 6;
   const skip = (page - 1) * limit;
 
   result = result.skip(skip).limit(limit);
 
   const tickets = await result;
-
   const totalTickets = await Ticket.countDocuments(queryObject);
   const numOfPages = Math.ceil(totalTickets / limit);
 
   res.status(StatusCodes.OK).json({ tickets, totalTickets, numOfPages });
 };
 
-const getTicket = async (req, res) => {
-  res.send("one ticket");
-};
-
 const updateTicket = async (req, res) => {
-  res.send("update ticket");
+  const { id: ticketId } = req.params;
+  const { title, description } = req.body;
+
+  if (!title || !description) {
+    throw new BadRequestError("Please provide all values");
+  }
+  const ticket = await Ticket.findOne({ _id: ticketId });
+
+  if (!ticket) {
+    throw new NotFoundError(`No Ticket with id :${ticketId}`);
+  }
+
+  checkPermissions(req.user, ticket.createdBy);
+
+  const updatedTicket = await Ticket.findOneAndUpdate(
+    { _id: ticketId },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(StatusCodes.OK).json({ updatedTicket });
 };
 
 const deleteTicket = async (req, res) => {
-  res.send("delete ticket");
+  const { id: ticketId } = req.params;
+  const ticket = await Ticket.findOne({ _id: ticketId });
+
+  if (!ticket) {
+    throw new NotFoundError(`No job with id :${ticketId}`);
+  }
+
+  checkPermissions(req.user, ticket.createdBy);
+
+  await ticket.remove();
+
+  res.status(StatusCodes.OK).json({ msg: "Success! Ticket is removed" });
 };
 
-export { createTicket, getAllTickets, getTicket, updateTicket, deleteTicket };
+export { createTicket, getAllTickets, updateTicket, deleteTicket };

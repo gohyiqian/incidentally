@@ -1,20 +1,18 @@
 import express from "express";
 const router = express.Router();
-
+import authenticateUser from "../middleware/auth.js";
 import {
   createTicket,
   getAllTickets,
-  getTicket,
   updateTicket,
   deleteTicket,
 } from "../controllers/ticketController.js";
 
-router.route("/:userId").post(createTicket);
-router.route("/all").get(getAllTickets);
+router.route("/").post(authenticateUser, createTicket);
+router.route("/").get(authenticateUser, getAllTickets);
 router
-  .route("/:ticketId")
-  .get(getTicket)
-  .delete(deleteTicket)
-  .patch(updateTicket);
+  .route("/:id")
+  .delete(authenticateUser, deleteTicket)
+  .patch(authenticateUser, updateTicket);
 
 export default router;
