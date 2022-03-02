@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:3000
-    container_name: react-client
+    container_name: react-client-incidentally
     networks:
       - mern-network
     volumes:
@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 5000:5000
-    container_name: express-server
+    container_name: express-server-incidentally
     networks: #provides isolation from other containers that may be running on the same host
       - mern-network
     volumes: #enables persistence of DB data between container restarts and provides bind mounts to allow for hot reloading
@@ -43,7 +43,7 @@ services:
     image: mongo:3.6.19-xenial
     ports:
       - 27017:27017
-    container_name: mongo-db
+    container_name: mongo-db-incidentally
     networks:
       - mern-network
     volumes:

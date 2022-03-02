@@ -54,6 +54,7 @@ const Wrapper = styled.nav`
   .show-dropdown {
     visibility: visible;
   }
+  
   .dropdown-btn {
     background: transparent;
     border-color: transparent;
