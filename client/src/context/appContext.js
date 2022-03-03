@@ -68,12 +68,14 @@ const AppContext = React.createContext();
 
 const AppProvider = ({ children }) => {
   // const [state, setState] = useState(initialState);
+
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // axios
   const authFetch = axios.create({
     baseURL: "/api",
   });
+
   authFetch.interceptors.request.use(
     (config) => {
       config.headers.common["Authorization"] = `Bearer ${state.token}`;
@@ -83,6 +85,7 @@ const AppProvider = ({ children }) => {
       return Promise.reject(error);
     }
   );
+
   // response
   authFetch.interceptors.response.use(
     (response) => {
@@ -149,6 +152,7 @@ const AppProvider = ({ children }) => {
     try {
       const { data } = await authFetch.patch("/users/update", currentUser);
       const { user, token } = data;
+      // console.log(data);
       dispatch({
         type: UPDATE_USER_SUCCESS,
         payload: { user, token },
@@ -261,12 +265,15 @@ const AppProvider = ({ children }) => {
   const handleChange = ({ name, value }) => {
     dispatch({ type: HANDLE_CHANGE, payload: { name, value } });
   };
+
   const clearValues = () => {
     dispatch({ type: CLEAR_VALUES });
   };
+
   const clearFilters = () => {
     dispatch({ type: CLEAR_FILTERS });
   };
+
   const changePage = (page) => {
     dispatch({ type: CHANGE_PAGE, payload: { page } });
   };

@@ -15,9 +15,9 @@ import notFoundMiddleware from "./middleware/notFound.js";
 import errorHandlerMiddleware from "./middleware/errorHandler.js";
 
 // models
-import User from "./models/user.js";
-import Ticket from "./models/ticket.js";
-import Project from "./models/project.js";
+// import User from "./models/user.js";
+// import Ticket from "./models/ticket.js";
+// import Project from "./models/project.js";
 
 app.get("/", (req, res) => {
   // throw new Error("error");

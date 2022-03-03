@@ -51,7 +51,7 @@ const getAllTickets = async (req, res) => {
   if (ticketType && ticketType !== "all") {
     queryObject.ticketType = ticketType;
   }
-
+  console.log(queryObject);
   let result = Ticket.find(queryObject);
 
   // chain sort conditions
@@ -67,7 +67,7 @@ const getAllTickets = async (req, res) => {
   if (sort === "z-a") {
     result = result.sort("-position");
   }
-
+  console.log(result);
   // // setup pagination
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 6;

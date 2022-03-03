@@ -4,6 +4,7 @@
 
 - Tech Stack: React, Node, Express, MongoDB
 - Main Dependencies:express, dotenv, mongoose, jsonwebtoken, bcrypt, axios, styled-components
+- Other dependencies: http-status-codes
 - Images: https://undraw.co/illustrations
 - Design: Figma https://www.figma.com/file/aOmg1JxetWpgWhHFeOFPpK/Incidentally?node-id=0%3A1
 
@@ -62,9 +63,127 @@ https://www.figma.com/file/aOmg1JxetWpgWhHFeOFPpK/Incidentally?node-id=0%3A1
 
 ### 9. useContext
 
+```javaScript
+// create context in appContext.js for global states to be used in any components
+const AppContext = React.createContext();
+
+// define initialState
+const initialState = {showAlert: false, user: user ? JSON.parse(user) : null,}
+
+const AppProvider = ({ children }) => {
+  // define children functions
+  return (
+    <AppContext.Provider value={{ ...state }}>{children}</AppContext.Provider>
+  );
+}
+
+//define & export a useAppContext function to be used in any components
+const useAppContext = () => {
+  return useContext(AppContext);
+};
+
+export { AppProvider, initialState, useAppContext };
+
+// accessing children component via useAppContext()
+const { user, showAlert } = useAppContext();
+
+```
+
 ### 10. Reducer & Action
 
 ### 11. Add a 404 Page for User Friendliness
+
+### 12. Use http-status-codes pacakage
+
+```JavaScript
+import { StatusCodes } from "http-status-codes";
+StatusCodes.BAD_REQUEST //400
+StatusCodes.UNAUTHORIZED //401
+StatusCodes.NOT_FOUND //404
+StatusCodes.INTERNAL_SERVER_ERROR //500
+```
+
+### 13. Save User to Local Storage to persist login
+
+```JavaScript
+  const addUserToLocalStorage = ({ user, token }) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+  };
+```
+
+### 14. Use Axios Interceptors to check JWT tokens to avoid writing repeated codes
+
+We can think of axios interceptors like a middleware: https://axios-http.com/docs/interceptors
+
+```JavaScript
+// typically written like this
+const updateUser = async(currentUser) =>{
+  try{
+    const {data} = await axios.patch('api/auth/updateUser', currentUser, {
+      // avoid repeating this header auth portion in every function
+      headers:{
+        Authorization: `Bearer ${state.token}`
+      }
+    })
+  } catch(error){
+    console.log(error.response)
+  }
+}
+
+  // Using axios interceptors
+  // Add a request interceptor
+  const authFetch = axios.create({
+    baseURL: "/api",
+  });
+
+  authFetch.interceptors.request.use(
+    (config) => {
+      config.headers.common["Authorization"] = `Bearer ${state.token}`;
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // Add a response interceptor
+  // allow us to isolate and check for 401 errors
+  authFetch.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error) => {
+      // console.log(error.response)
+      if (error.response.status === 401) {
+        logoutUser(); //force logout if 401
+      }
+      return Promise.reject(error);
+    }
+  );
+
+//rewrite using authFetch
+ const updateUser = async (currentUser) => {
+    dispatch({ type: UPDATE_USER_BEGIN });
+    try {
+      const { data } = await authFetch.patch("/users/update", currentUser);
+      const { user, token } = data;
+      dispatch({
+        type: UPDATE_USER_SUCCESS,
+        payload: { user, token },
+      });
+      addUserToLocalStorage({ user, token });
+    } catch (error) {
+      if (error.response.status !== 401) {
+        dispatch({
+          type: UPDATE_USER_ERROR,
+          payload: { msg: error.response.data.msg },
+        });
+      }
+    }
+    clearAlert();
+  };
+```
 
 ## Start Up the Application
 

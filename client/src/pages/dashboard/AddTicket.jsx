@@ -23,7 +23,7 @@ const AddTicket = () => {
     priorityOptions,
   } = useAppContext();
 
-  console.log(user._id);
+  // console.log(user._id);
   const handleSubmit = (e) => {
     e.preventDefault();
 

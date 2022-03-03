@@ -19,9 +19,12 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const [values, setValues] = useState(initialState);
   // import global state from useContext
+
   const { user, showAlert, displayAlert, setupUser } = useAppContext();
   const state = useAppContext();
+
   console.log(state);
+
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
@@ -71,6 +74,7 @@ const RegisterPage = () => {
           <Logo />
         </Link>
         <h3>{values.isMember ? "Login" : "Register"}</h3>
+
         {showAlert && <Alert />}
         {!values.isMember && (
           <FormRow
@@ -94,9 +98,11 @@ const RegisterPage = () => {
           value={values.password}
           handleChange={handleChange}
         />
+
         <button type="submit" className="btn btn-block">
           submit
         </button>
+
         <p>
           {values.isMember ? "Not a member yet?" : "Already a member?"}
           <button type="button" onClick={toggleMember} className="member-btn">

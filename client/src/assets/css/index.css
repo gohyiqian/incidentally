@@ -255,7 +255,8 @@ ul {
   letter-spacing: var(--letterSpacing);
   text-transform: capitalize;
 }
-/* alert */
+
+/* loading-spinner */
 
 @keyframes spinner {
   to {
@@ -274,6 +275,7 @@ ul {
 .loading-center {
   margin: 0 auto;
 }
+
 /* title */
 
 .title {
